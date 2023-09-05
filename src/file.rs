@@ -13,6 +13,8 @@ pub fn init() {
   }
 
   File::create(home_dir).expect("创建文件失败");
+
+  println!("已成功初始化存储文件")
 }
 
 pub fn get_content() -> String {

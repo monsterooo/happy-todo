@@ -1,14 +1,13 @@
 use app::App;
 use clap::{arg, command, value_parser, ArgAction, Command};
-use home;
-use std::path::PathBuf;
+use std::{path::PathBuf, io};
 mod app;
 mod file;
 
 static TYPE_HELP: &'static str = "x, max, maximum   20 characters, contains symbols.{n}\
 p, phrase         20 character sentence.";
 
-fn main() {
+fn main() -> io::Result<()> {
     let matches = command!() // requires `cargo` feature
         .arg(arg!([name] "Optional name to operate on"))
         .arg(
@@ -24,7 +23,7 @@ fn main() {
             -d --debug ... "Turn debugging information on"
         ))
         .subcommand(Command::new("init").about("初始化本地存储文件"))
-        .subcommand(Command::new("list"))
+        .subcommand(Command::new("list").about("显示所有Todos"))
         .subcommand(
             Command::new("test")
                 .about("does testing things")
@@ -33,38 +32,7 @@ fn main() {
         .get_matches();
 
     let mut app = App::new();
-    app.run(&matches);
+    app.run(&matches)?;
 
-    // You can check the value provided by positional arguments, or option arguments
-    if let Some(name) = matches.get_one::<String>("name") {
-        println!("Value for name: {name}");
-    }
-
-    if let Some(config_path) = matches.get_one::<PathBuf>("config") {
-        println!("Value for config: {}", config_path.display());
-    }
-
-    // You can see how many times a particular flag or argument occurred
-    // Note, only flags can have multiple occurrences
-    match matches
-        .get_one::<u8>("debug")
-        .expect("Count's are defaulted")
-    {
-        0 => println!("Debug mode is off"),
-        1 => println!("Debug mode is kind of on"),
-        2 => println!("Debug mode is on"),
-        _ => println!("Don't be crazy"),
-    }
-
-    // You can check for the existence of subcommands, and if found use their
-    // matches just as you would the top level cmd
-    if let Some(matches) = matches.subcommand_matches("test") {
-        // "$ myapp test" was run
-        if matches.get_flag("list") {
-            // "$ myapp test -l" was run
-            println!("Printing testing lists...");
-        } else {
-            println!("Not printing testing lists...");
-        }
-    }
+    Ok(())
 }
