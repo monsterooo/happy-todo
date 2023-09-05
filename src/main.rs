@@ -1,15 +1,11 @@
-use std::path::PathBuf;
-
+use app::App;
 use clap::{arg, command, value_parser, ArgAction, Command};
+use home;
+use std::path::PathBuf;
+mod app;
+mod file;
 
-static TYPE_HELP: &'static str =
-"x, max, maximum   20 characters, contains symbols.{n}\
-l, long           Copy-friendly, 14 characters, contains symbols.{n}\
-m, med, medium    Copy-friendly, 8 characters, contains symbols.{n}\
-b, basic          8 characters, no symbols.{n}\
-s, short          Copy-friendly, 4 characters, no symbols.{n}\
-i, pin            4 numbers.{n}\
-n, name           9 letter name.{n}\
+static TYPE_HELP: &'static str = "x, max, maximum   20 characters, contains symbols.{n}\
 p, phrase         20 character sentence.";
 
 fn main() {
@@ -27,12 +23,17 @@ fn main() {
         .arg(arg!(
             -d --debug ... "Turn debugging information on"
         ))
+        .subcommand(Command::new("init").about("初始化本地存储文件"))
+        .subcommand(Command::new("list"))
         .subcommand(
             Command::new("test")
                 .about("does testing things")
                 .arg(arg!(-l --list "lists test values").action(ArgAction::SetTrue)),
         )
         .get_matches();
+
+    let mut app = App::new();
+    app.run(&matches);
 
     // You can check the value provided by positional arguments, or option arguments
     if let Some(name) = matches.get_one::<String>("name") {
@@ -66,6 +67,4 @@ fn main() {
             println!("Not printing testing lists...");
         }
     }
-
-    // Continued program logic goes here...
 }
