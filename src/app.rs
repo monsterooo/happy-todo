@@ -1,5 +1,5 @@
 use std::io::{stdout, self};
-use crate::file::{self, get_content};
+use crate::file::{self, get_content, set_content};
 use clap::ArgMatches;
 use crossterm::{execute, style::{SetForegroundColor, Color, ResetColor}};
 use regex::Regex;
@@ -38,9 +38,17 @@ impl App {
             self.parse_todo(content);
             // println!("{:#?}", self.todos);
             self.print_list()?;
+        } else if let Some(content) = matches.subcommand_matches("add") {
+          if let Some(content) = content.get_one::<String>("content") {
+            set_content(format!("{}", content))?;
+          }
         }
 
         Ok(())
+    }
+
+    fn add_todo() {
+
     }
 
     fn parse_todo(&mut self, content: String) {

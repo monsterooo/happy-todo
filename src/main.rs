@@ -1,5 +1,5 @@
 use app::App;
-use clap::{arg, command, value_parser, ArgAction, Command};
+use clap::{arg, command, value_parser, ArgAction, Command, Arg};
 use std::{path::PathBuf, io};
 mod app;
 mod file;
@@ -24,6 +24,15 @@ fn main() -> io::Result<()> {
         ))
         .subcommand(Command::new("init").about("初始化本地存储文件"))
         .subcommand(Command::new("list").about("显示所有Todos"))
+        .subcommand(
+            Command::new("add")
+                .about("添加一个Todo")
+                .arg(
+                    Arg::new("content")
+                        .action(ArgAction::Set)
+                        .help("输入您要添加的Todo内容")
+                )
+        )
         .subcommand(
             Command::new("test")
                 .about("does testing things")
