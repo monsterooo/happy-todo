@@ -1,4 +1,4 @@
-use std::io::{stdout, self};
+use std::io::{stdout, self, Stdout};
 use crate::file::{self, get_content, set_content};
 use clap::ArgMatches;
 use crossterm::{execute, style::{SetForegroundColor, Color, ResetColor}};
@@ -36,11 +36,10 @@ impl App {
         } else if let Some(_) = matches.subcommand_matches("list") {
             let content = get_content();
             self.parse_todo(content);
-            // println!("{:#?}", self.todos);
             self.print_list()?;
         } else if let Some(content) = matches.subcommand_matches("add") {
           if let Some(content) = content.get_one::<String>("content") {
-            set_content(format!("{}", content))?;
+            set_content(format!("\r\n{}", content))?;
           }
         }
 
@@ -52,7 +51,7 @@ impl App {
     }
 
     fn parse_todo(&mut self, content: String) {
-      let lines: Vec<&str> = content.split("\n").filter(|&x| !x.is_empty()).collect();
+      let lines: Vec<&str> = content.split("\r\n").filter(|&x| !x.is_empty()).collect();
       let mut todos: Vec<Todo> = Vec::new();
 
       for line in lines {
@@ -90,15 +89,14 @@ impl App {
       let mut stdout = stdout();
       
       if let Some(todos) = &self.todos {
-        execute!(stdout, Print("\n\n"))?;
-
+        execute!(stdout, Print("\r\n"))?;
         for (index, todo) in todos.iter().enumerate() {
           let complete = if todo.complete { "✔" } else { " " };
           execute!(
             stdout,
             SetForegroundColor(Color::Yellow),
             Print(format!("{:<3}", index + 1)),
-            ResetColor,
+            SetForegroundColor(Color::White),
             Print(format!("[{}]   ", complete)),
           )?;
           App::print_content(&todo.content)?;
@@ -119,27 +117,24 @@ impl App {
             stdout,
             SetForegroundColor(Color::Red),
             Print(format!("{} ", value)),
-            ResetColor
           )?;
         } else if App::is_project(value) {
           execute!(
             stdout,
             SetForegroundColor(Color::Cyan),
             Print(format!("{} ", value)),
-            ResetColor
           )?;
         } else {
           execute!(
             stdout,
+            SetForegroundColor(Color::White),
             Print(format!("{} ", value)),
-            ResetColor
           )?;
         }
       }
       execute!(
         stdout,
         Print("\r\n"),
-        ResetColor
       )?;
 
       Ok(())
